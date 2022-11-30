@@ -18,7 +18,7 @@ var (
 	// kmap map[string]int
 )
 
-func init() {
+func Init() {
 	var err error
 	db, err = leveldb.OpenFile("levdb", nil)
 	if err != nil {

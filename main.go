@@ -29,6 +29,7 @@ func TestTime() {
 }
 
 func TestConflicit() {
+	ycsb.Init()
 	a := ycsb.GenTxSet()
 	b := ycsb.GenTxSet()
 	c := ycsb.GenTxSet()
@@ -57,8 +58,11 @@ func TestNormalRandom() {
 }
 
 func main() {
-	rand.Seed(time.Now().Unix())
-	TestConflicit()
+	// rand.Seed(time.Now().Unix())
+	// TestConflicit()
 	// TestNormalRandom()
 	// TestTime()
+
+	x := 1e5
+	fmt.Println(x)
 }
