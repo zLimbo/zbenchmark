@@ -1,0 +1,14 @@
+*
+!*.*
+!*/
+
+pkg/
+api.key
+.api.key.trimmed
+*-handin.tar.gz
+
+*.log
+bin/
+config/peers.json
+
+levdb/
