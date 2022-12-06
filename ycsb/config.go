@@ -15,7 +15,7 @@ var KConfig = Config{
 	BatchTxNum: 1000,
 	ValueSize:  64,
 	OpsPerTx:   3,
-	OriginKeys: 100000,
+	OriginKeys: 10000,
 	WRate:      0.5,
 	HotKey:     0.2,
 	HotKeyRate: 0.6,

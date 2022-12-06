@@ -11,4 +11,4 @@ api.key
 bin/
 config/peers.json
 
-levdb/
+*levdb/

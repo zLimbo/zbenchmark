@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+	"zbenchmark/smallbank"
 	"zbenchmark/ycsb"
 )
 
@@ -57,12 +58,43 @@ func TestNormalRandom() {
 	}
 }
 
+func TestSmallbank() {
+	s := smallbank.NewSmallbank("smallbank_levdb", ycsb.KConfig.OriginKeys)
+	a := s.GenTxSet(ycsb.KConfig.BatchTxNum)
+	b := s.GenTxSet(ycsb.KConfig.BatchTxNum)
+	c := s.GenTxSet(ycsb.KConfig.BatchTxNum)
+	d := s.GenTxSet(ycsb.KConfig.BatchTxNum)
+
+	println("a, b, c, d ======= ")
+	ycsb.SolveConflict(a, b, c, d)
+
+	println("a, b, d, c ======= ")
+	ycsb.SolveConflict(a, b, d, c)
+}
+
+func TestSallbankDAG() {
+	s := smallbank.NewSmallbank("dag_levdb", ycsb.KConfig.OriginKeys)
+	a := s.GenTxSet(ycsb.KConfig.BatchTxNum)
+	b := s.GenTxSet(ycsb.KConfig.BatchTxNum)
+
+	ycsb.SolveConflictWithDAG(a, b)
+	// c := s.GenTxSet(ycsb.KConfig.BatchTxNum)
+	// d := s.GenTxSet(ycsb.KConfig.BatchTxNum)
+
+	// println("a, b, c, d ======= ")
+	// ycsb.SolveConflict(a, b, c, d)
+
+	// println("a, b, d, c ======= ")
+	// ycsb.SolveConflict(a, b, d, c)
+}
+
 func main() {
 	// rand.Seed(time.Now().Unix())
 	// TestConflicit()
 	// TestNormalRandom()
 	// TestTime()
 
-	x := 1e5
-	fmt.Println(x)
+	TestSmallbank()
+
+	TestSallbankDAG()
 }

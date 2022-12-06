@@ -69,6 +69,21 @@ func (s *Smallbank) SendPayment(accountA string, accountB string, amount int) *y
 	}
 }
 
+func (s *Smallbank) WriteCheck(account string, amount int) *ycsb.Tx {
+	r := ycsb.Op{
+		Type: ycsb.OpRead,
+		Key:  account,
+	}
+	w := ycsb.Op{
+		Type: ycsb.OpWrite,
+		Key:  account,
+		Val:  strconv.Itoa(-amount),
+	}
+	return &ycsb.Tx{
+		Ops: []ycsb.Op{r, w},
+	}
+}
+
 func (s *Smallbank) Amalgamate(saving string, checking string) *ycsb.Tx {
 	ra := ycsb.Op{
 		Type: ycsb.OpRead,
@@ -107,21 +122,61 @@ func (s *Smallbank) Query(saving string, checking string) *ycsb.Tx {
 	}
 }
 
-func (s *Smallbank) GetRandomAccount() string {
-	return ""
-}
-
 func (s *Smallbank) GetRandomAmount() int {
-	return 0
+	return RandomRange(1e4, 1e5)
 }
 
+func (s *Smallbank) GetNormalRandomIndex() int {
+	n := len(s.savings)
+	for {
+		x := int(rand.NormFloat64()*ycsb.KConfig.StdDiff) + n/2
+		if x >= 0 && x < n {
+			return x
+		}
+	}
+}
+
+func (s *Smallbank) GetRandomTx() *ycsb.Tx {
+	r0 := rand.Float64()
+	if r0 > ycsb.KConfig.WRate {
+		i := s.GetNormalRandomIndex()
+		return s.Query(s.savings[i], s.checkings[i])
+	}
+	switch rand.Int() % 5 {
+	case 0:
+		i := s.GetNormalRandomIndex()
+		amount := s.GetRandomAmount()
+		return s.TransactSavings(s.savings[i], amount)
+	case 1:
+		i := s.GetNormalRandomIndex()
+		amount := s.GetRandomAmount()
+		return s.DepositChecking(s.checkings[i], amount)
+	case 2:
+		i := s.GetNormalRandomIndex()
+		j := s.GetNormalRandomIndex()
+		for j == i {
+			j = s.GetNormalRandomIndex()
+		}
+		amount := s.GetRandomAmount()
+		return s.SendPayment(s.checkings[i], s.checkings[j], amount)
+	case 3:
+		i := s.GetNormalRandomIndex()
+		amount := s.GetRandomAmount()
+		return s.WriteCheck(s.checkings[i], amount)
+	case 4:
+		i := s.GetNormalRandomIndex()
+		return s.Amalgamate(s.savings[i], s.checkings[i])
+	}
+	panic("err")
+}
 
 func (s *Smallbank) GenTxSet(n int) []*ycsb.Tx {
-
-
-	return nil
+	txs := make([]*ycsb.Tx, n)
+	for i := range txs {
+		txs[i] = s.GetRandomTx()
+	}
+	return txs
 }
-
 
 // [l, r)
 func RandomRange(l, r int) int {
